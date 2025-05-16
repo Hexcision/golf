@@ -90,7 +90,8 @@
     <label for="holes">Number of Holes:</label>
     <select id="holes">
       <option value="18" selected>18 Holes</option>
-      <option value="9">9 Holes</option>
+      <option value="9f">9 Holes (Front)</option>
+      <option value="9b">9 Holes (Back)</option>
     </select>
 
     <h3>Player Handicaps & Tee Selection</h3>
@@ -99,7 +100,8 @@
       <input type="number" step="0.1" id="p1" placeholder="Handicap Index">
       <select id="tee1">
         <option value="navy">Navy</option>
-        <option value="red">Red</option>
+        <option value="silver">Silver</option>
+        <option value="heather">Heather</option>
       </select>
     </div>
     <div id="player2" class="player-row">
@@ -107,7 +109,8 @@
       <input type="number" step="0.1" id="p2" placeholder="Handicap Index">
       <select id="tee2">
         <option value="navy">Navy</option>
-        <option value="red">Red</option>
+        <option value="silver">Silver</option>
+        <option value="heather">Heather</option>
       </select>
     </div>
     <div id="player3" class="player-row">
@@ -115,7 +118,8 @@
       <input type="number" step="0.1" id="p3" placeholder="Handicap Index">
       <select id="tee3">
         <option value="navy">Navy</option>
-        <option value="red">Red</option>
+        <option value="silver">Silver</option>
+        <option value="heather">Heather</option>
       </select>
     </div>
     <div id="player4" class="player-row">
@@ -123,7 +127,8 @@
       <input type="number" step="0.1" id="p4" placeholder="Handicap Index">
       <select id="tee4">
         <option value="navy">Navy</option>
-        <option value="red">Red</option>
+        <option value="silver">Silver</option>
+        <option value="heather">Heather</option>
       </select>
     </div>
 
@@ -134,8 +139,22 @@
 
   <script>
     const teeData = {
-      navy: { slope: 125, cr: 71.3, par: 70 },
-      red: { slope: 127, cr: 72.2, par: 72 }
+      navy: {
+        '18': { slope: 125, cr: 71.3, par: 70 },
+        '9f': { slope: 126, cr: 35.0, par: 35 },
+        '9b': { slope: 125, cr: 36.3, par: 35 }
+      },
+      red: {
+        '18': { slope: 127, cr: 72.2, par: 72 },
+        '9f': { slope: 124, cr: 34.0, par: 36 },
+        '9b': { slope: 116, cr: 34.4, par: 36 }
+      },
+      silver: {
+        '18': { slope: 121, cr: 69.9, par: 70 },
+        '9f': { slope: 119, cr: 34.7, par: 35 },
+        '9b': { slope: 123, cr: 35.2, par: 35 }
+      }
+      // 'heather' intentionally left out for now
     };
 
     function togglePlayers() {
@@ -145,16 +164,18 @@
       document.getElementById('player4').style.display = isSingles ? 'none' : 'flex';
     }
 
-    function calculateCourseHandicap(index, teeKey, holes) {
-      const { slope, cr, par } = teeData[teeKey];
-      const fullCH = index * (slope / 113) + (cr - par);
-      return holes === 9 ? fullCH / 2 : fullCH;
+    function calculateCourseHandicap(index, teeKey, holeKey) {
+      if (!teeData[teeKey] || !teeData[teeKey][holeKey]) {
+        return NaN;
+      }
+      const { slope, cr, par } = teeData[teeKey][holeKey];
+      return index * (slope / 113) + (cr - par);
     }
 
     function calculate() {
       const format = document.getElementById('format').value;
       const isSingles = format === 'matchplay';
-      const holes = parseInt(document.getElementById('holes').value);
+      const holeKey = document.getElementById('holes').value;
 
       const hi = [
         parseFloat(document.getElementById('p1').value),
@@ -175,8 +196,9 @@
         return;
       }
 
-      const ch = hi.map((h, i) => h !== null ? Math.round(calculateCourseHandicap(h, tees[i], holes)) : null);
-      let output = `<p>Course Handicaps (${holes} holes): ${ch.filter(v => v !== null).join(' / ')}</p>`;
+      const ch = hi.map((h, i) => h !== null ? Math.round(calculateCourseHandicap(h, tees[i], holeKey)) : null);
+      let holeLabel = holeKey === '18' ? '18 Holes' : holeKey === '9f' ? '9 Holes (Front)' : '9 Holes (Back)';
+      let output = `<p>Course Handicaps (${holeLabel}): ${ch.filter(v => v !== null).join(' / ')}</p>`;
 
       if (format === 'fourball') {
         const ph = ch.map(x => x !== null ? Math.round(x * 0.9) : null);
