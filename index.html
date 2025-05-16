@@ -84,6 +84,7 @@
       <option value="fourball">Fourball (90%)</option>
       <option value="foursomes">Foursomes (50%) combined</option>
       <option value="greensomes">Greensomes (60/40 split)</option>
+      <option value="pyms">Pyms (50%, Max Combined Index 40)</option>
       <option value="matchplay">Singles Matchplay (100%)</option>
     </select>
 
@@ -154,7 +155,6 @@
         '9f': { slope: 119, cr: 34.7, par: 35 },
         '9b': { slope: 123, cr: 35.2, par: 35 }
       }
-      // 'heather' intentionally left out for now
     };
 
     function togglePlayers() {
@@ -165,10 +165,9 @@
     }
 
     function calculateCourseHandicap(index, teeKey, holeKey) {
-      if (!teeData[teeKey] || !teeData[teeKey][holeKey]) {
-        return NaN;
-      }
-      const { slope, cr, par } = teeData[teeKey][holeKey];
+      const data = teeData[teeKey]?.[holeKey];
+      if (!data) return NaN;
+      const { slope, cr, par } = data;
       return index * (slope / 113) + (cr - par);
     }
 
@@ -205,9 +204,30 @@
         const min = Math.min(...ph.filter(x => x !== null));
         const shots = ph.map(p => p !== null ? p - min : null);
         output += `<p>Playing Handicaps (90%): ${ph.join(' / ')}</p><p>Strokes Received (vs lowest): ${shots.join(' / ')}</p>`;
-      } else if (format === 'foursomes') {
-        const a = Math.round((ch[0] + ch[1]) * 0.5);
-        const b = Math.round((ch[2] + ch[3]) * 0.5);
+      } else if (format === 'foursomes' || format === 'pyms') {
+        let [aIndex1, aIndex2] = [hi[0], hi[1]];
+        let [bIndex1, bIndex2] = [hi[2], hi[3]];
+
+        if (format === 'pyms') {
+          if (aIndex1 + aIndex2 > 40) {
+            const scale = 40 / (aIndex1 + aIndex2);
+            aIndex1 *= scale;
+            aIndex2 *= scale;
+          }
+          if (bIndex1 + bIndex2 > 40) {
+            const scale = 40 / (bIndex1 + bIndex2);
+            bIndex1 *= scale;
+            bIndex2 *= scale;
+          }
+        }
+
+        const aCH1 = calculateCourseHandicap(aIndex1, tees[0], holeKey);
+        const aCH2 = calculateCourseHandicap(aIndex2, tees[1], holeKey);
+        const bCH1 = calculateCourseHandicap(bIndex1, tees[2], holeKey);
+        const bCH2 = calculateCourseHandicap(bIndex2, tees[3], holeKey);
+
+        const a = Math.round((aCH1 + aCH2) * 0.5);
+        const b = Math.round((bCH1 + bCH2) * 0.5);
         const min = Math.min(a, b);
         output += `<p>Team A: ${a}, Team B: ${b}</p><p>Strokes Received: A ${a - min}, B ${b - min}</p>`;
       } else if (format === 'greensomes') {
