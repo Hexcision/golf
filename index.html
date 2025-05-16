@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>2v2 Handicap Calculator</title>
   <style>
     body {
@@ -87,6 +87,12 @@
       <option value="matchplay">Singles Matchplay (100%)</option>
     </select>
 
+    <label for="holes">Number of Holes:</label>
+    <select id="holes">
+      <option value="18" selected>18 Holes</option>
+      <option value="9">9 Holes</option>
+    </select>
+
     <h3>Player Handicaps & Tee Selection</h3>
     <div id="player1" class="player-row">
       <label>Player 1:</label>
@@ -139,14 +145,16 @@
       document.getElementById('player4').style.display = isSingles ? 'none' : 'flex';
     }
 
-    function calculateCourseHandicap(index, teeKey) {
+    function calculateCourseHandicap(index, teeKey, holes) {
       const { slope, cr, par } = teeData[teeKey];
-      return index * (slope / 113) + (cr - par);
+      const fullCH = index * (slope / 113) + (cr - par);
+      return holes === 9 ? fullCH / 2 : fullCH;
     }
 
     function calculate() {
       const format = document.getElementById('format').value;
       const isSingles = format === 'matchplay';
+      const holes = parseInt(document.getElementById('holes').value);
 
       const hi = [
         parseFloat(document.getElementById('p1').value),
@@ -167,8 +175,8 @@
         return;
       }
 
-      const ch = hi.map((h, i) => h !== null ? Math.round(calculateCourseHandicap(h, tees[i])) : null);
-      let output = `<p>Course Handicaps: ${ch.filter(v => v !== null).join(' / ')}</p>`;
+      const ch = hi.map((h, i) => h !== null ? Math.round(calculateCourseHandicap(h, tees[i], holes)) : null);
+      let output = `<p>Course Handicaps (${holes} holes): ${ch.filter(v => v !== null).join(' / ')}</p>`;
 
       if (format === 'fourball') {
         const ph = ch.map(x => x !== null ? Math.round(x * 0.9) : null);
