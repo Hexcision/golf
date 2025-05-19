@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mens Hindhead Handicap Calculator</title>
+  <title>Hindhead Golf Handicap Calculator</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -27,31 +27,38 @@
     }
     h3 {
       color: #a39b48;
+      margin-top: 2rem;
     }
     label {
       font-weight: 600;
+      display: block;
+      margin-top: 1rem;
     }
     input, select {
-      width: 100%;
       padding: 0.5rem;
       margin-bottom: 1rem;
       border: 1px solid #ccc;
       border-radius: 6px;
+      width: 100%;
     }
+    /* indent the holes under the format */
+
     .player-row {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
       margin-bottom: 1rem;
+      justify-content: center;
     }
     .player-row label {
-      width: 80px;
+      flex: 0 0 80px;
       text-align: right;
       margin-bottom: 0;
-      align-self: center;
     }
-    .player-row input, .player-row select {
+    .player-row select,
+    .player-row input {
       flex: 1;
+      width: auto;
     }
     button {
       background: #a39b48;
@@ -73,11 +80,26 @@
       background: #f0f4ff;
       border-left: 5px solid #a39b48;
     }
+    @media (max-width: 600px) {
+      .player-row {
+        flex-wrap: wrap;
+      }
+      .player-row label,
+      .player-row select,
+      .player-row input {
+        flex: 0 0 100%;
+        width: 100%;
+        text-align: left;
+      }
+      .sub-group {
+        margin-left: 0;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Hindhead Mens Golf Handicap Calculator</h2>
+    <h2>Hindhead Golf Handicap Calculator</h2>
 
     <label for="format">Match Format:</label>
     <select id="format" onchange="togglePlayers()">
@@ -88,44 +110,66 @@
       <option value="matchplay">Singles Matchplay (100%)</option>
     </select>
 
-    <label for="holes">Number of Holes:</label>
-    <select id="holes">
-      <option value="18" selected>18 Holes</option>
-      <option value="9f">9 Holes (Front)</option>
-      <option value="9b">9 Holes (Back)</option>
-    </select>
+    <div class="sub-group">
+      <label for="holes">Number of Holes:</label>
+      <select id="holes">
+        <option value="18" selected>18 Holes</option>
+        <option value="9f">9 Holes (Front)</option>
+        <option value="9b">9 Holes (Back)</option>
+      </select>
+    </div>
 
-    <h3>Player Handicaps & Tee Selection</h3>
+    <h3>Player Handicaps, Sex & Tee Selection</h3>
+
     <div id="player1" class="player-row">
       <label>Player 1:</label>
-      <input type="number" step="0.1" id="p1" placeholder="Handicap Index">
+      <select id="sex1">
+        <option value="men" selected>♂ Men</option>
+        <option value="ladies">♀ Ladies</option>
+      </select>
+      <input type="number" step="0.1" id="p1" placeholder="HI">
       <select id="tee1">
         <option value="navy">Navy</option>
         <option value="silver">Silver</option>
         <option value="heather">Heather</option>
       </select>
     </div>
+
     <div id="player2" class="player-row">
       <label>Player 2:</label>
-      <input type="number" step="0.1" id="p2" placeholder="Handicap Index">
+      <select id="sex2">
+        <option value="men" selected>♂ Men</option>
+        <option value="ladies">♀ Ladies</option>
+      </select>
+      <input type="number" step="0.1" id="p2" placeholder="HI">
       <select id="tee2">
         <option value="navy">Navy</option>
         <option value="silver">Silver</option>
         <option value="heather">Heather</option>
       </select>
     </div>
+
     <div id="player3" class="player-row">
       <label>Player 3:</label>
-      <input type="number" step="0.1" id="p3" placeholder="Handicap Index">
+      <select id="sex3">
+        <option value="men" selected>♂ Men</option>
+        <option value="ladies">♀ Ladies</option>
+      </select>
+      <input type="number" step="0.1" id="p3" placeholder="HI">
       <select id="tee3">
         <option value="navy">Navy</option>
         <option value="silver">Silver</option>
         <option value="heather">Heather</option>
       </select>
     </div>
+
     <div id="player4" class="player-row">
       <label>Player 4:</label>
-      <input type="number" step="0.1" id="p4" placeholder="Handicap Index">
+      <select id="sex4">
+        <option value="men" selected>♂ Men</option>
+        <option value="ladies">♀ Ladies</option>
+      </select>
+      <input type="number" step="0.1" id="p4" placeholder="HI">
       <select id="tee4">
         <option value="navy">Navy</option>
         <option value="silver">Silver</option>
@@ -134,41 +178,60 @@
     </div>
 
     <button onclick="calculate()">Calculate Handicaps</button>
-
     <div id="result" class="result"></div>
   </div>
 
   <script>
     const teeData = {
       navy: {
-        '18': { slope: 125, cr: 71.3, par: 70 },
-        '9f': { slope: 126, cr: 35.0, par: 35 },
-        '9b': { slope: 125, cr: 36.3, par: 35 }
-      },
-      red: {
-        '18': { slope: 127, cr: 72.2, par: 72 },
-        '9f': { slope: 124, cr: 34.0, par: 36 },
-        '9b': { slope: 116, cr: 34.4, par: 36 }
+        men: {
+          '18': { slope: 125, cr: 71.3, par: 70 },
+          '9f': { slope: 126, cr: 35.0, par: 35 },
+          '9b': { slope: 125, cr: 36.3, par: 35 }
+        },
+        ladies: {
+          '18': { slope: 137, cr: 77.0, par: 72 },
+          '9f': { slope: 136, cr: 38.4, par: 36 },
+          '9b': { slope: 139, cr: 38.6, par: 36 }
+        }
       },
       silver: {
-        '18': { slope: 121, cr: 69.9, par: 70 },
-        '9f': { slope: 119, cr: 34.7, par: 35 },
-        '9b': { slope: 123, cr: 35.2, par: 35 }
+        men: {
+          '18': { slope: 121, cr: 69.9, par: 70 },
+          '9f': { slope: 119, cr: 34.7, par: 35 },
+          '9b': { slope: 123, cr: 35.2, par: 35 }
+        },
+        ladies: {
+          '18': { slope: 142, cr: 75.3, par: 72 },
+          '9f': { slope: 137, cr: 37.6, par: 36 },
+          '9b': { slope: 146, cr: 37.7, par: 36 }
+        }
+      },
+      heather: {
+        men: {
+          '18': { slope: 127, cr: 72.2, par: 72 },
+          '9f': { slope: 124, cr: 34.0, par: 36 },
+          '9b': { slope: 116, cr: 34.4, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 130, cr: 73.9, par: 72 },
+          '9f': { slope: 129, cr: 37.1, par: 36 },
+          '9b': { slope: 131, cr: 36.8, par: 36 }
+        }
       }
     };
 
     function togglePlayers() {
-      const format = document.getElementById('format').value;
-      const isSingles = format === 'matchplay';
-      document.getElementById('player3').style.display = isSingles ? 'none' : 'flex';
-      document.getElementById('player4').style.display = isSingles ? 'none' : 'flex';
+      const isSingles = document.getElementById('format').value === 'matchplay';
+      ['player3','player4'].forEach(id => {
+        document.getElementById(id).style.display = isSingles ? 'none' : 'flex';
+      });
     }
 
-    function calculateCourseHandicap(index, teeKey, holeKey) {
-      const data = teeData[teeKey]?.[holeKey];
+    function calculateCourseHandicap(index, sex, teeKey, holeKey) {
+      const data = teeData[teeKey]?.[sex]?.[holeKey];
       if (!data) return NaN;
-      const { slope, cr, par } = data;
-      return index * (slope / 113) + (cr - par);
+      return index * (data.slope / 113) + (data.cr - data.par);
     }
 
     function calculate() {
@@ -176,72 +239,68 @@
       const isSingles = format === 'matchplay';
       const holeKey = document.getElementById('holes').value;
 
-      const hi = [
-        parseFloat(document.getElementById('p1').value),
-        parseFloat(document.getElementById('p2').value),
-        isSingles ? null : parseFloat(document.getElementById('p3').value),
-        isSingles ? null : parseFloat(document.getElementById('p4').value)
-      ];
+      const players = [1,2,3,4].map(i => ({
+        hi:   parseFloat(document.getElementById('p'+i).value),
+        sex:  document.getElementById('sex'+i).value,
+        tee:  document.getElementById('tee'+i).value
+      })).filter((_,i) => i < 2 || !isSingles);
 
-      const tees = [
-        document.getElementById('tee1').value,
-        document.getElementById('tee2').value,
-        isSingles ? null : document.getElementById('tee3').value,
-        isSingles ? null : document.getElementById('tee4').value
-      ];
-
-      if (hi.slice(0, isSingles ? 2 : 4).some(h => isNaN(h))) {
+      if (players.some(p => isNaN(p.hi))) {
         document.getElementById('result').innerText = "Please enter all handicaps.";
         return;
       }
 
-      const ch = hi.map((h, i) => h !== null ? Math.round(calculateCourseHandicap(h, tees[i], holeKey)) : null);
-      let holeLabel = holeKey === '18' ? '18 Holes' : holeKey === '9f' ? '9 Holes (Front)' : '9 Holes (Back)';
-      let output = `<p>Course Handicaps (${holeLabel}): ${ch.filter(v => v !== null).join(' / ')}</p>`;
+      const ch = players.map(p =>
+        Math.round(calculateCourseHandicap(p.hi, p.sex, p.tee, holeKey))
+      );
+
+      let holeLabel = holeKey === '18' ? '18 Holes'
+                     : holeKey === '9f' ? '9 Holes (Front)'
+                     : '9 Holes (Back)';
+      let out = `<p>Course Handicaps (${holeLabel}): ${ch.join(' / ')}</p>`;
 
       if (format === 'fourball') {
-        const ph = ch.map(x => x !== null ? Math.round(x * 0.9) : null);
-        const min = Math.min(...ph.filter(x => x !== null));
-        const shots = ph.map(p => p !== null ? p - min : null);
-        output += `<p>Playing Handicaps (90%): ${ph.join(' / ')}</p><p>Strokes Received (vs lowest): ${shots.join(' / ')}</p>`;
-      } else if (format === 'foursomes' || format === 'pyms') {
-        let [aIndex1, aIndex2] = [hi[0], hi[1]];
-        let [bIndex1, bIndex2] = [hi[2], hi[3]];
-
-        if (format === 'pyms') {
-          if (aIndex1 + aIndex2 > 40) {
-            const scale = 40 / (aIndex1 + aIndex2);
-            aIndex1 *= scale;
-            aIndex2 *= scale;
-          }
-          if (bIndex1 + bIndex2 > 40) {
-            const scale = 40 / (bIndex1 + bIndex2);
-            bIndex1 *= scale;
-            bIndex2 *= scale;
-          }
-        }
-
-        const aCH1 = calculateCourseHandicap(aIndex1, tees[0], holeKey);
-        const aCH2 = calculateCourseHandicap(aIndex2, tees[1], holeKey);
-        const bCH1 = calculateCourseHandicap(bIndex1, tees[2], holeKey);
-        const bCH2 = calculateCourseHandicap(bIndex2, tees[3], holeKey);
-
-        const a = Math.round((aCH1 + aCH2) * 0.5);
-        const b = Math.round((bCH1 + bCH2) * 0.5);
-        const min = Math.min(a, b);
-        output += `<p>Team A: ${a}, Team B: ${b}</p><p>Strokes Received: A ${a - min}, B ${b - min}</p>`;
-      } else if (format === 'greensomes') {
-        const a = Math.round(ch[0] * 0.6 + ch[1] * 0.4);
-        const b = Math.round(ch[2] * 0.6 + ch[3] * 0.4);
-        const min = Math.min(a, b);
-        output += `<p>Team A: ${a}, Team B: ${b}</p><p>Strokes Received: A ${a - min}, B ${b - min}</p>`;
+        const ph = ch.map(x => Math.round(x * 0.9));
+        const low = Math.min(...ph);
+        const shots = ph.map(x => x - low);
+        out += `<p>Playing HIs (90%): ${ph.join(' / ')}</p>
+                <p>Strokes vs lowest: ${shots.join(' / ')}</p>`;
       } else if (format === 'matchplay') {
-        const min = Math.min(ch[0], ch[1]);
-        const shots = [ch[0] - min, ch[1] - min];
-        output += `<p>Playing Handicaps (100%): ${ch[0]} / ${ch[1]}</p><p>Strokes Received (vs lowest): ${shots.join(' / ')}</p>`;
+        const low = Math.min(...ch);
+        const shots = ch.map(x => x - low);
+        out += `<p>Playing HIs (100%): ${ch.join(' / ')}</p>
+                <p>Strokes vs lowest: ${shots.join(' / ')}</p>`;
+      } else if (['foursomes','pyms'].includes(format)) {
+        if (format === 'pyms') {
+          let sumA = players[0].hi + players[1].hi;
+          let sumB = players[2].hi + players[3].hi;
+          let capA = sumA > 40 ? 40 / sumA : 1;
+          let capB = sumB > 40 ? 40 / sumB : 1;
+          players[0].hi *= capA;
+          players[1].hi *= capA;
+          players[2].hi *= capB;
+          players[3].hi *= capB;
+        }
+        const A = Math.round(
+          (calculateCourseHandicap(players[0].hi, players[0].sex, players[0].tee, holeKey) +
+           calculateCourseHandicap(players[1].hi, players[1].sex, players[1].tee, holeKey)) / 2
+        );
+        const B = Math.round(
+          (calculateCourseHandicap(players[2].hi, players[2].sex, players[2].tee, holeKey) +
+           calculateCourseHandicap(players[3].hi, players[3].sex, players[3].tee, holeKey)) / 2
+        );
+        const low = Math.min(A, B);
+        out += `<p>Team A: ${A}, Team B: ${B}</p>
+                <p>Strokes vs lowest: A ${A - low}, B ${B - low}</p>`;
+      } else if (format === 'greensomes') {
+        const A = Math.round(ch[0] * 0.6 + ch[1] * 0.4);
+        const B = Math.round(ch[2] * 0.6 + ch[3] * 0.4);
+        const low = Math.min(A, B);
+        out += `<p>Team A: ${A}, Team B: ${B}</p>
+                <p>Strokes vs lowest: A ${A - low}, B ${B - low}</p>`;
       }
 
-      document.getElementById('result').innerHTML = output;
+      document.getElementById('result').innerHTML = out;
     }
 
     window.onload = togglePlayers;
