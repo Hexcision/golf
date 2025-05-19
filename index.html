@@ -5,102 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hindhead Golf Handicap Calculator</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f9f9fb;
-      margin: 0;
-      padding: 2rem;
-      color: #333;
-    }
-    .container {
-      max-width: 700px;
-      background: #fff;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      margin: auto;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      color: #a39b48;
-    }
-    h3 {
-      color: #a39b48;
-      margin-top: 2rem;
-    }
-    label {
-      font-weight: 600;
-      display: block;
-    }
-    input, select {
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      width: 100%;
-    }
-    /* indent the holes under the format */
-
-    .player-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 7px;
-      justify-content: center;
-    }
-    .player-row label {
-      flex: 0 0 80px;
-      text-align: right;
-    }
-    .player-row select,
-    .player-row input {
-      flex: 1;
-      width: auto;
-    }
-    button {
-      background: #a39b48;
-      color: white;
-      padding: 0.75rem 1.25rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1rem;
-      width: 100%;
-      margin-top: 1rem;
-    }
-    button:hover {
-      background: #8e883c;
-    }
-    .result {
-      margin-top: 2rem;
-      padding: 1rem;
-      background: #f0f4ff;
-      border-left: 5px solid #a39b48;
-    }
-    @media (max-width: 600px) {
-      .player-row {
-        flex-wrap: wrap;
-      }
-      .player-row label,
-      .player-row select,
-      .player-row input {
-        flex: 0 0 100%;
-        width: 100%;
-        text-align: left;
-      }
-      .sub-group {
-        margin-left: 0;
-      }
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f9f9fb; margin: 0; padding: 2rem; color: #333; }
+    .container { max-width: 700px; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin: auto; }
+    h2 { text-align: center; margin-bottom: 1.5rem; color: #a39b48; }
+    h3 { color: #a39b48; margin-top: 2rem; }
+    label { font-weight: 600; display: block; }
+    input, select { padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; width: 100%; }
+    .player-row { display: flex; align-items: center; gap: 0.75rem; padding: 7px; justify-content: center; }
+    .player-row label { flex: 0 0 80px; text-align: right; }
+    .player-row select, .player-row input { flex: 1; width: auto; }
+    button { background: #a39b48; color: white; padding: 0.75rem 1.25rem; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; width: 100%; margin-top: 1rem; }
+    button:hover { background: #8e883c; }
+    .result { margin-top: 2rem; padding: 1rem; background: #f0f4ff; border-left: 5px solid #a39b48; }
+    @media (max-width: 600px) { .player-row { flex-wrap: wrap; } .player-row label, .player-row select, .player-row input { flex: 0 0 100%; width: 100%; text-align: left; } }
   </style>
 </head>
 <body>
   <div class="container">
+    <div><img src="club-logo-nobg.png" alt="Hindhead Golf Club" style="width: 50px; margin: auto; display: block;" /></div>
     <h2>Hindhead Golf Handicap Calculator</h2>
 
     <label for="format">Match Format:</label>
@@ -125,58 +48,30 @@
 
     <div id="player1" class="player-row">
       <label>Player 1:</label>
-      <select id="sex1">
-        <option value="men" selected>Men</option>
-        <option value="ladies">Ladies</option>
-      </select>
+      <select id="sex1"><option value="men" selected>Men</option><option value="ladies">Ladies</option></select>
       <input type="number" step="0.1" id="p1" placeholder="HI">
-      <select id="tee1">
-        <option value="navy">Navy</option>
-        <option value="silver">Silver</option>
-        <option value="heather">Heather</option>
-      </select>
+      <select id="tee1"><option value="navy">Navy</option><option value="silver">Silver</option><option value="heather">Heather</option></select>
     </div>
 
     <div id="player2" class="player-row">
       <label>Player 2:</label>
-      <select id="sex2">
-        <option value="men" selected>Men</option>
-        <option value="ladies">Ladies</option>
-      </select>
+      <select id="sex2"><option value="men" selected>Men</option><option value="ladies">Ladies</option></select>
       <input type="number" step="0.1" id="p2" placeholder="HI">
-      <select id="tee2">
-        <option value="navy">Navy</option>
-        <option value="silver">Silver</option>
-        <option value="heather">Heather</option>
-      </select>
+      <select id="tee2"><option value="navy">Navy</option><option value="silver">Silver</option><option value="heather">Heather</option></select>
     </div>
 
     <div id="player3" class="player-row">
       <label>Player 3:</label>
-      <select id="sex3">
-        <option value="men" selected>Men</option>
-        <option value="ladies">Ladies</option>
-      </select>
+      <select id="sex3"><option value="men" selected>Men</option><option value="ladies">Ladies</option></select>
       <input type="number" step="0.1" id="p3" placeholder="HI">
-      <select id="tee3">
-        <option value="navy">Navy</option>
-        <option value="silver">Silver</option>
-        <option value="heather">Heather</option>
-      </select>
+      <select id="tee3"><option value="navy">Navy</option><option value="silver">Silver</option><option value="heather">Heather</option></select>
     </div>
 
     <div id="player4" class="player-row">
       <label>Player 4:</label>
-      <select id="sex4">
-        <option value="men" selected>Men</option>
-        <option value="ladies">Ladies</option>
-      </select>
+      <select id="sex4"><option value="men" selected>Men</option><option value="ladies">Ladies</option></select>
       <input type="number" step="0.1" id="p4" placeholder="HI">
-      <select id="tee4">
-        <option value="navy">Navy</option>
-        <option value="silver">Silver</option>
-        <option value="heather">Heather</option>
-      </select>
+      <select id="tee4"><option value="navy">Navy</option><option value="silver">Silver</option><option value="heather">Heather</option></select>
     </div>
 
     <button onclick="calculate()">Calculate Handicaps</button>
@@ -188,8 +83,8 @@
       navy: {
         men: {
           '18': { slope: 125, cr: 71.3, par: 70 },
-          '9f': { slope: 126, cr: 35.0, par: 35 },
-          '9b': { slope: 125, cr: 36.3, par: 35 }
+          '9f': { slope: 126, cr: 35.6, par: 35 },
+          '9b': { slope: 125, cr: 35.6, par: 35 }
         },
         ladies: {
           '18': { slope: 137, cr: 77.0, par: 72 },
@@ -231,16 +126,24 @@
     }
 
     function calculateCourseHandicap(index, sex, teeKey, holeKey) {
-      const data = teeData[teeKey]?.[sex]?.[holeKey];
-      if (!data) return NaN;
-      return index * (data.slope / 113) + (data.cr - data.par);
+      const data18 = teeData[teeKey]?.[sex]?.['18'];
+      if (!data18) return NaN;
+
+      // If playing 9 holes, use half of the 18-hole handicap
+      if (holeKey !== '18') {
+        const raw18 = index * (data18.slope / 113) + (data18.cr - data18.par);
+        return raw18 * (9/18);
+      }
+
+      const data9 = teeData[teeKey]?.[sex]?.[holeKey];
+      if (!data9) return NaN;
+      return index * (data9.slope / 113) + (data9.cr - data9.par);
     }
 
     function calculate() {
       const format = document.getElementById('format').value;
       const isSingles = format === 'matchplay';
       const holeKey = document.getElementById('holes').value;
-
       const players = [1,2,3,4].map(i => ({
         hi:   parseFloat(document.getElementById('p'+i).value),
         sex:  document.getElementById('sex'+i).value,
@@ -252,26 +155,26 @@
         return;
       }
 
-      const ch = players.map(p =>
-        Math.round(calculateCourseHandicap(p.hi, p.sex, p.tee, holeKey))
-      );
+      const ch = players.map(p => Math.round(
+        calculateCourseHandicap(p.hi, p.sex, p.tee, holeKey)
+      ));
 
       let holeLabel = holeKey === '18' ? '18 Holes'
                      : holeKey === '9f' ? '9 Holes (Front)'
                      : '9 Holes (Back)';
-      let out = `<p>Course Handicaps (${holeLabel}): ${ch.join(' / ')}</p>`;
 
+      let out = `<p>Course Handicaps (${holeLabel}): ${ch.join(' / ')}</p>`;
       if (format === 'fourball') {
         const ph = ch.map(x => Math.round(x * 0.9));
         const low = Math.min(...ph);
         const shots = ph.map(x => x - low);
-        out += `<p>Playing HIs (90%): ${ph.join(' / ')}</p>
-                <p>Strokes vs lowest: ${shots.join(' / ')}</p>`;
+        out += `<p>Playing HIs (90%): ${ph.join(' / ')}</p>`;
+        out += `<p>Strokes vs lowest: ${shots.join(' / ')}</p>`;
       } else if (format === 'matchplay') {
         const low = Math.min(...ch);
         const shots = ch.map(x => x - low);
-        out += `<p>Playing HIs (100%): ${ch.join(' / ')}</p>
-                <p>Strokes vs lowest: ${shots.join(' / ')}</p>`;
+        out += `<p>Playing HIs (100%): ${ch.join(' / ')}</p>`;
+        out += `<p>Strokes vs lowest: ${shots.join(' / ')}</p>`;
       } else if (['foursomes','pyms'].includes(format)) {
         if (format === 'pyms') {
           let sumA = players[0].hi + players[1].hi;
@@ -292,14 +195,14 @@
            calculateCourseHandicap(players[3].hi, players[3].sex, players[3].tee, holeKey)) / 2
         );
         const low = Math.min(A, B);
-        out += `<p>Team A: ${A}, Team B: ${B}</p>
-                <p>Strokes vs lowest: A ${A - low}, B ${B - low}</p>`;
+        out += `<p>Team A: ${A}, Team B: ${B}</p>`;
+        out += `<p>Strokes vs lowest: A ${A - low}, B ${B - low}</p>`;
       } else if (format === 'greensomes') {
         const A = Math.round(ch[0] * 0.6 + ch[1] * 0.4);
         const B = Math.round(ch[2] * 0.6 + ch[3] * 0.4);
         const low = Math.min(A, B);
-        out += `<p>Team A: ${A}, Team B: ${B}</p>
-                <p>Strokes vs lowest: A ${A - low}, B ${B - low}</p>`;
+        out += `<p>Team A: ${A}, Team B: ${B}</p>`;
+        out += `<p>Strokes vs lowest: A ${A - low}, B ${B - low}</p>`;
       }
 
       document.getElementById('result').innerHTML = out;
