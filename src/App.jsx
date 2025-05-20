@@ -18,6 +18,14 @@ export default function App() {
     const [result, setResult] = useState('')
 
     const isSingles = format === 'matchplay'
+    const isBestBall = format.startsWith('best_')
+    let bestN = 0, bestTotal = 0
+    if (isBestBall) {
+        const parts = format.split('_')
+        bestN = parseInt(parts[1], 10)
+        bestTotal = parseInt(parts[3], 10)
+    }
+    const maxPlayers = isSingles ? 2 : isBestBall ? bestTotal : 4
 
     function handlePlayerChange(idx, field, value) {
         const copy = [...players]
@@ -38,7 +46,7 @@ export default function App() {
     }
 
     function handleCalculate() {
-        const active = players.slice(0, isSingles ? 2 : 4)
+        const active = players.slice(0, maxPlayers)
         if (active.some(p => p.hi === '' || isNaN(p.hi))) {
             setResult('Please enter all handicaps.')
             return
@@ -83,6 +91,19 @@ export default function App() {
             const low = Math.min(A, B)
             out.push(`Team A: ${A}, Team B: ${B}`)
             out.push(`Strokes vs lowest: A ${A - low}, B ${B - low}`)
+
+        } else if (isBestBall) {
+            const factors = {
+                'best_1_from_4': 0.75,
+                'best_2_from_4': 0.85,
+                'best_3_from_4': 1.00,
+                'best_1_from_3': 0.70,
+                'best_2_from_3': 0.85,
+                'best_3_from_3': 1.00
+            }
+            const factor = factors[format] || 1
+            const ph = ch.map(x => Math.round(x * factor))
+            out.push(`Playing HIs (${Math.round(factor * 100)}%): ${ph.join(' / ')}`)
         }
 
         setResult(out.join('\n'))
@@ -90,10 +111,10 @@ export default function App() {
 
     return (
         <div className="container">
-            <div style={{ display: 'flex', alignItems: 'center', }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
                 <img src="club-logo-nobg.png" alt="Hindhead" className="logo" />
-                <div style={{ display: 'flex', justifyContent: 'center', flexGrow: 1}}>
-                <h2>Hindhead Golf Handicap Calculator</h2>
+                <div style={{ display: 'flex', justifyContent: 'center', flexGrow: 1 }}>
+                    <h2>Hindhead Golf Handicap Calculator</h2>
                 </div>
             </div>
 
@@ -104,6 +125,12 @@ export default function App() {
                 <option value="greensomes">Greensomes (60/40 split)</option>
                 <option value="pyms">Pyms (50%, Max Combined Index 40)</option>
                 <option value="matchplay">Singles Matchplay (100%)</option>
+                <option value="best_1_from_4">Best 1 from 4</option>
+                <option value="best_2_from_4">Best 2 from 4</option>
+                <option value="best_3_from_4">Best 3 from 4</option>
+                <option value="best_1_from_3">Best 1 from 3</option>
+                <option value="best_2_from_3">Best 2 from 3</option>
+                <option value="best_3_from_3">Best 3 from 3</option>
             </select>
 
             <label>Number of Holes:</label>
@@ -115,7 +142,7 @@ export default function App() {
 
             <h3>Player Handicaps, Sex & Tee Selection</h3>
             {players.map((p, i) => (
-                (i < 2 || !isSingles) && (
+                i < maxPlayers && (
                     <div key={i} className="player-row">
                         <label>Player {i + 1}:</label>
                         <select value={p.sex} onChange={e => handlePlayerChange(i, 'sex', e.target.value)}>
