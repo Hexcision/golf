@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react'
-
-const teeData = {
-    navy: { men: { '18': { slope: 125, cr: 71.3, par: 70 }, '9f': { slope: 126, cr: 35.6, par: 35 }, '9b': { slope: 125, cr: 35.6, par: 35 } }, ladies: { '18': { slope: 137, cr: 77.0, par: 72 }, '9f': { slope: 136, cr: 38.4, par: 36 }, '9b': { slope: 139, cr: 38.6, par: 36 } } },
-    silver: { men: { '18': { slope: 121, cr: 69.9, par: 70 }, '9f': { slope: 119, cr: 34.7, par: 35 }, '9b': { slope: 123, cr: 35.2, par: 35 } }, ladies: { '18': { slope: 142, cr: 75.3, par: 72 }, '9f': { slope: 137, cr: 37.6, par: 36 }, '9b': { slope: 146, cr: 37.7, par: 36 } } },
-    heather: { men: { '18': { slope: 127, cr: 72.2, par: 72 }, '9f': { slope: 124, cr: 34.0, par: 36 }, '9b': { slope: 116, cr: 34.4, par: 36 } }, ladies: { '18': { slope: 130, cr: 73.9, par: 72 }, '9f': { slope: 129, cr: 37.1, par: 36 }, '9b': { slope: 131, cr: 36.8, par: 36 } } }
-}
+import { getClubData, getClubOptions, DEFAULT_CLUB_ID } from './golfClubsData'
 
 // Constants for handicap allowances
 const HANDICAP_ALLOWANCES = {
@@ -24,23 +19,31 @@ const HANDICAP_ALLOWANCES = {
 
 const MIN_HANDICAP = 0
 const MAX_HANDICAP = 54
-const STORAGE_KEY = 'hindhead_golf_saved_configs'
-
-// Tee color mapping
-const TEE_COLORS = {
-    navy: '#000080',
-    silver: '#C0C0C0',
-    heather: '#967BB6'
-}
+const STORAGE_KEY = 'golf_saved_configs'
+const CLUB_SELECTION_KEY = 'golf_selected_club'
 
 export default function App() {
+    // Load selected club from localStorage or use default
+    const [selectedClubId, setSelectedClubId] = useState(() => {
+        try {
+            return localStorage.getItem(CLUB_SELECTION_KEY) || DEFAULT_CLUB_ID
+        } catch (e) {
+            return DEFAULT_CLUB_ID
+        }
+    })
+
+    // Get current club data
+    const clubData = getClubData(selectedClubId)
+    const teeData = clubData.tees
+    const defaultTee = Object.keys(teeData)[0]
+
     const [format, setFormat] = useState('fourball')
     const [holes, setHoles] = useState('18')
     const [players, setPlayers] = useState([
-        { sex: 'men', hi: '', tee: 'navy' },
-        { sex: 'men', hi: '', tee: 'navy' },
-        { sex: 'men', hi: '', tee: 'navy' },
-        { sex: 'men', hi: '', tee: 'navy' }
+        { sex: 'men', hi: '', tee: defaultTee },
+        { sex: 'men', hi: '', tee: defaultTee },
+        { sex: 'men', hi: '', tee: defaultTee },
+        { sex: 'men', hi: '', tee: defaultTee }
     ])
     const [result, setResult] = useState('')
     const [error, setError] = useState('')
@@ -58,6 +61,29 @@ export default function App() {
             console.error('Failed to load saved configurations:', e)
         }
     }, [])
+
+    // Update localStorage when club selection changes
+    useEffect(() => {
+        try {
+            localStorage.setItem(CLUB_SELECTION_KEY, selectedClubId)
+            // Update document title
+            document.title = `${clubData.name} - Handicap Calculator`
+        } catch (e) {
+            console.error('Failed to save club selection:', e)
+        }
+    }, [selectedClubId, clubData.name])
+
+    // Handle club change
+    function handleClubChange(newClubId) {
+        const newClubData = getClubData(newClubId)
+        const newDefaultTee = Object.keys(newClubData.tees)[0]
+
+        // Reset players with new default tee
+        setPlayers(players.map(p => ({ ...p, tee: newDefaultTee })))
+        setSelectedClubId(newClubId)
+        setResult('')
+        setError('')
+    }
 
     const isSingles = format === 'matchplay'
     const isBestBall = format.startsWith('best_')
@@ -88,9 +114,14 @@ export default function App() {
 
     function calculateCourseHandicap(index, sex, teeKey, holeKey) {
         try {
-            const data18 = teeData[teeKey]?.[sex]?.['18']
+            const teeInfo = teeData[teeKey]
+            if (!teeInfo) {
+                throw new Error(`Tee "${teeKey}" not found`)
+            }
+
+            const data18 = teeInfo[sex]?.['18']
             if (!data18) {
-                throw new Error(`Missing data for ${teeKey} tee, ${sex}`)
+                throw new Error(`Missing data for ${teeInfo.name} tee, ${sex}`)
             }
 
             if (holeKey !== '18') {
@@ -98,9 +129,9 @@ export default function App() {
                 return raw18 * (9 / 18)
             }
 
-            const data9 = teeData[teeKey]?.[sex]?.[holeKey]
+            const data9 = teeInfo[sex]?.[holeKey]
             if (!data9) {
-                throw new Error(`Missing data for ${teeKey} tee, ${sex}, ${holeKey}`)
+                throw new Error(`Missing data for ${teeInfo.name} tee, ${sex}, ${holeKey}`)
             }
             return index * (data9.slope / 113) + (data9.cr - data9.par)
         } catch (e) {
@@ -297,16 +328,30 @@ export default function App() {
         }
     }
 
+    const clubOptions = getClubOptions()
+
     return (
         <div className="container">
             <div className="header">
-                <img src="club-logo-nobg.png" alt="Hindhead Golf Club Logo" className="logo" />
+                <img src={`${import.meta.env.BASE_URL}${clubData.logo}`} alt={`${clubData.name} Logo`} className="logo" />
                 <div className="title-wrapper">
-                    <h1>Hindhead Golf Handicap Calculator</h1>
+                    <h1>{clubData.name} Handicap Calculator</h1>
                 </div>
             </div>
 
             <div className="form-section">
+                <label htmlFor="club-select">Golf Club:</label>
+                <select
+                    id="club-select"
+                    value={selectedClubId}
+                    onChange={e => handleClubChange(e.target.value)}
+                    aria-label="Select golf club"
+                >
+                    {clubOptions.map(club => (
+                        <option key={club.id} value={club.id}>{club.name}</option>
+                    ))}
+                </select>
+
                 <label htmlFor="format-select">Match Format:</label>
                 <select
                     id="format-select"
@@ -384,12 +429,12 @@ export default function App() {
                                 id={`player-${i}-tee`}
                                 value={p.tee}
                                 onChange={e => handlePlayerChange(i, 'tee', e.target.value)}
-                                style={{ borderLeft: `4px solid ${TEE_COLORS[p.tee]}` }}
+                                style={{ borderLeft: `4px solid ${teeData[p.tee]?.color || '#000'}` }}
                                 aria-label={`Player ${i + 1} tee selection`}
                             >
-                                <option value="navy">Navy</option>
-                                <option value="silver">Silver</option>
-                                <option value="heather">Heather</option>
+                                {Object.entries(teeData).map(([teeKey, teeInfo]) => (
+                                    <option key={teeKey} value={teeKey}>{teeInfo.name}</option>
+                                ))}
                             </select>
                         </div>
                     )
