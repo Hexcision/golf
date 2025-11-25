@@ -140,7 +140,7 @@ input:invalid {
 
 .player-row {
     display: grid;
-    grid-template-columns: 80px 100px 120px 120px;
+    grid-template-columns: 80px 140px 100px 100px 120px;
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem;
@@ -370,9 +370,10 @@ button:disabled {
     }
 
     .player-row {
-        grid-template-columns: 70px 90px 100px 100px;
+        grid-template-columns: 70px 1fr 80px 80px 100px;
         gap: 0.5rem;
         padding: 0.5rem;
+        font-size: 0.9rem;
     }
 
     .button-group {

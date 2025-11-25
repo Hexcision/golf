@@ -40,10 +40,10 @@ export default function App() {
     const [format, setFormat] = useState('fourball')
     const [holes, setHoles] = useState('18')
     const [players, setPlayers] = useState([
-        { sex: 'men', hi: '', tee: defaultTee },
-        { sex: 'men', hi: '', tee: defaultTee },
-        { sex: 'men', hi: '', tee: defaultTee },
-        { sex: 'men', hi: '', tee: defaultTee }
+        { name: '', sex: 'men', hi: '', tee: defaultTee },
+        { name: '', sex: 'men', hi: '', tee: defaultTee },
+        { name: '', sex: 'men', hi: '', tee: defaultTee },
+        { name: '', sex: 'men', hi: '', tee: defaultTee }
     ])
     const [result, setResult] = useState('')
     const [error, setError] = useState('')
@@ -79,7 +79,7 @@ export default function App() {
         const newClubData = getClubData(newClubId)
         const newDefaultTee = Object.keys(newClubData.tees)[0]
 
-        // Reset players with new default tee
+        // Reset players with new default tee, preserve names
         setPlayers(players.map(p => ({ ...p, tee: newDefaultTee })))
         setSelectedClubId(newClubId)
         setResult('')
@@ -141,26 +141,39 @@ export default function App() {
     }
 
     // Format-specific calculation functions
-    function calculateFourball(ch) {
+    function calculateFourball(ch, activePlayers) {
         const ph = ch.map(x => Math.round(x * HANDICAP_ALLOWANCES.fourball))
         const low = Math.min(...ph)
         const shots = ph.map(x => x - low)
+
+        const playerLines = activePlayers.map((p, i) => {
+            const playerLabel = p.name || `Player ${i + 1}`
+            return `${playerLabel}: ${shots[i]} shot${shots[i] !== 1 ? 's' : ''} (PH: ${ph[i]})`
+        })
+
         return {
             lines: [
                 `Playing Handicaps (90%): ${ph.join(' / ')}`,
-                `Strokes vs lowest: ${shots.join(' / ')}`
+                '',
+                ...playerLines
             ],
             playingHandicaps: ph
         }
     }
 
-    function calculateMatchplay(ch) {
+    function calculateMatchplay(ch, activePlayers) {
         const low = Math.min(...ch)
         const shots = ch.map(x => x - low)
+
+        const player1Label = activePlayers[0].name || 'Player 1'
+        const player2Label = activePlayers[1].name || 'Player 2'
+
         return {
             lines: [
                 `Playing Handicaps (100%): ${ch.join(' / ')}`,
-                `Strokes vs lowest: ${shots.join(' / ')}`
+                '',
+                `${player1Label}: ${shots[0]} shot${shots[0] !== 1 ? 's' : ''} (PH: ${ch[0]})`,
+                `${player2Label}: ${shots[1]} shot${shots[1] !== 1 ? 's' : ''} (PH: ${ch[1]})`
             ],
             playingHandicaps: ch
         }
@@ -187,37 +200,55 @@ export default function App() {
                               calculateCourseHandicap(p[3].hi, p[3].sex, p[3].tee, holes)) * HANDICAP_ALLOWANCES.foursomes)
         const low = Math.min(A, B)
 
+        const teamANames = [p[0].name || 'Player 1', p[1].name || 'Player 2'].filter(Boolean).join(' & ')
+        const teamBNames = [p[2].name || 'Player 3', p[3].name || 'Player 4'].filter(Boolean).join(' & ')
+
         return {
             lines: [
-                `Team A (Players 1 & 2): ${A}`,
-                `Team B (Players 3 & 4): ${B}`,
-                `Strokes vs lowest: Team A ${A - low}, Team B ${B - low}`
+                `Team A (${teamANames}): ${A}`,
+                `Team B (${teamBNames}): ${B}`,
+                '',
+                `Team A: ${A - low} shot${A - low !== 1 ? 's' : ''}`,
+                `Team B: ${B - low} shot${B - low !== 1 ? 's' : ''}`
             ],
             teamHandicaps: { A, B }
         }
     }
 
-    function calculateGreensomes(ch) {
+    function calculateGreensomes(ch, activePlayers) {
         const A = Math.round(ch[0] * HANDICAP_ALLOWANCES.greensomes_low + ch[1] * HANDICAP_ALLOWANCES.greensomes_high)
         const B = Math.round(ch[2] * HANDICAP_ALLOWANCES.greensomes_low + ch[3] * HANDICAP_ALLOWANCES.greensomes_high)
         const low = Math.min(A, B)
 
+        const teamANames = [activePlayers[0].name || 'Player 1', activePlayers[1].name || 'Player 2'].filter(Boolean).join(' & ')
+        const teamBNames = [activePlayers[2].name || 'Player 3', activePlayers[3].name || 'Player 4'].filter(Boolean).join(' & ')
+
         return {
             lines: [
-                `Team A (Players 1 & 2): ${A} (60%/40%)`,
-                `Team B (Players 3 & 4): ${B} (60%/40%)`,
-                `Strokes vs lowest: Team A ${A - low}, Team B ${B - low}`
+                `Team A (${teamANames}): ${A} (60%/40%)`,
+                `Team B (${teamBNames}): ${B} (60%/40%)`,
+                '',
+                `Team A: ${A - low} shot${A - low !== 1 ? 's' : ''}`,
+                `Team B: ${B - low} shot${B - low !== 1 ? 's' : ''}`
             ],
             teamHandicaps: { A, B }
         }
     }
 
-    function calculateBestBall(ch, format) {
+    function calculateBestBall(ch, format, activePlayers) {
         const factor = HANDICAP_ALLOWANCES[format] || 1
         const ph = ch.map(x => Math.round(x * factor))
+
+        const playerLines = activePlayers.map((p, i) => {
+            const playerLabel = p.name || `Player ${i + 1}`
+            return `${playerLabel}: PH ${ph[i]}`
+        })
+
         return {
             lines: [
-                `Playing Handicaps (${Math.round(factor * 100)}%): ${ph.join(' / ')}`
+                `Playing Handicaps (${Math.round(factor * 100)}%): ${ph.join(' / ')}`,
+                '',
+                ...playerLines
             ],
             playingHandicaps: ph
         }
@@ -251,15 +282,15 @@ export default function App() {
 
             let formatResult
             if (format === 'fourball') {
-                formatResult = calculateFourball(ch)
+                formatResult = calculateFourball(ch, active)
             } else if (format === 'matchplay') {
-                formatResult = calculateMatchplay(ch)
+                formatResult = calculateMatchplay(ch, active)
             } else if (['foursomes', 'pyms'].includes(format)) {
                 formatResult = calculateFoursomesOrPyms(active, format)
             } else if (format === 'greensomes') {
-                formatResult = calculateGreensomes(ch)
+                formatResult = calculateGreensomes(ch, active)
             } else if (isBestBall) {
-                formatResult = calculateBestBall(ch, format)
+                formatResult = calculateBestBall(ch, format, active)
             }
 
             if (formatResult) {
@@ -303,6 +334,7 @@ export default function App() {
     function handleLoadGolfer(golfer, playerIndex) {
         const copy = [...players]
         copy[playerIndex] = {
+            name: golfer.name,
             sex: golfer.sex,
             hi: golfer.hi,
             tee: golfer.tee
@@ -438,7 +470,15 @@ export default function App() {
                                 role="group"
                                 aria-label={`Player ${i + 1} details`}
                             >
-                                <label htmlFor={`player-${i}-sex`}>Player {i + 1}:</label>
+                                <label htmlFor={`player-${i}-name`}>Player {i + 1}:</label>
+                                <input
+                                    id={`player-${i}-name`}
+                                    type="text"
+                                    value={p.name}
+                                    placeholder="Name"
+                                    onChange={e => handlePlayerChange(i, 'name', e.target.value)}
+                                    aria-label={`Player ${i + 1} name`}
+                                />
                                 <select
                                     id={`player-${i}-sex`}
                                     value={p.sex}
