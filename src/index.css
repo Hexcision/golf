@@ -260,15 +260,16 @@ button:disabled {
 
 /* Golfer quick load */
 .golfer-quick-load {
-    margin-top: 0.5rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 .golfer-quick-load select {
     font-size: 0.875rem;
     padding: 0.5rem;
-    background-color: #f9f9f9;
-    border: 1px dashed #ccc;
+    background-color: #f0f4ff;
+    border: 2px solid #a39b48;
+    border-radius: 6px;
+    font-weight: 500;
 }
 
 /* Save/Load section */
@@ -288,17 +289,25 @@ button:disabled {
 .save-golfer-section {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
     margin-top: 1rem;
 }
 
-.save-golfer-section select,
-.save-golfer-section input {
-    margin: 0;
+.save-golfer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
 }
 
-.save-golfer-section button {
-    margin: 0;
+.player-info {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #333;
 }
 
 .saved-golfers {
@@ -387,6 +396,16 @@ button:disabled {
 
     .save-golfer-section {
         gap: 0.5rem;
+    }
+
+    .save-golfer-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .save-golfer-row button {
+        width: 100%;
     }
 
     .saved-config-item {

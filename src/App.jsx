@@ -48,7 +48,6 @@ export default function App() {
     const [result, setResult] = useState('')
     const [error, setError] = useState('')
     const [savedGolfers, setSavedGolfers] = useState([])
-    const [newGolferName, setNewGolferName] = useState('')
     const [showGolferManager, setShowGolferManager] = useState(false)
 
     // Load saved golfers on mount
@@ -310,13 +309,13 @@ export default function App() {
             setError('Please enter a handicap before saving')
             return
         }
-        if (!newGolferName.trim()) {
-            setError('Please enter a golfer name')
+        if (!player.name || !player.name.trim()) {
+            setError('Please enter a name for this player before saving')
             return
         }
 
         const golfer = {
-            name: newGolferName.trim(),
+            name: player.name.trim(),
             sex: player.sex,
             hi: player.hi,
             tee: player.tee,
@@ -326,9 +325,7 @@ export default function App() {
         const updated = [...savedGolfers, golfer]
         setSavedGolfers(updated)
         localStorage.setItem(GOLFERS_STORAGE_KEY, JSON.stringify(updated))
-        setNewGolferName('')
         setError('')
-        setShowGolferManager(false)
     }
 
     function handleLoadGolfer(golfer, playerIndex) {
@@ -465,6 +462,25 @@ export default function App() {
                 {players.map((p, i) => (
                     i < maxPlayers && (
                         <div key={i}>
+                            {savedGolfers.length > 0 && (
+                                <div className="golfer-quick-load">
+                                    <select
+                                        value=""
+                                        onChange={e => {
+                                            const golfer = savedGolfers.find(g => g.name === e.target.value)
+                                            if (golfer) handleLoadGolfer(golfer, i)
+                                        }}
+                                        aria-label={`Load saved golfer for Player ${i + 1}`}
+                                    >
+                                        <option value="">Player {i + 1}: Load saved golfer...</option>
+                                        {savedGolfers.map((golfer, idx) => (
+                                            <option key={idx} value={golfer.name}>
+                                                {golfer.name} ({golfer.sex === 'men' ? 'M' : 'L'}, HI: {golfer.hi})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                             <div
                                 className={`player-row ${isTeamFormat ? (i < 2 ? 'team-a-border' : 'team-b-border') : ''}`}
                                 role="group"
@@ -512,25 +528,6 @@ export default function App() {
                                     ))}
                                 </select>
                             </div>
-                            {savedGolfers.length > 0 && (
-                                <div className="golfer-quick-load">
-                                    <select
-                                        value=""
-                                        onChange={e => {
-                                            const golfer = savedGolfers.find(g => g.name === e.target.value)
-                                            if (golfer) handleLoadGolfer(golfer, i)
-                                        }}
-                                        aria-label={`Load saved golfer for Player ${i + 1}`}
-                                    >
-                                        <option value="">Load saved golfer...</option>
-                                        {savedGolfers.map((golfer, idx) => (
-                                            <option key={idx} value={golfer.name}>
-                                                {golfer.name} ({golfer.sex === 'men' ? 'M' : 'L'}, HI: {golfer.hi})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )}
                         </div>
                     )
                 ))}
@@ -567,47 +564,25 @@ export default function App() {
 
                 {showGolferManager && (
                     <div className="golfer-manager">
-                        <h4>Save Current Player as Golfer:</h4>
+                        <h4>Save Player as Golfer:</h4>
+                        <p style={{ fontSize: '0.875rem', color: '#666', marginBottom: '1rem' }}>
+                            Fill in the player's name above, then save them here for quick loading later.
+                        </p>
                         <div className="save-golfer-section">
-                            <select
-                                onChange={e => {
-                                    // Store selected player index for saving
-                                    const idx = parseInt(e.target.value)
-                                    if (!isNaN(idx)) {
-                                        setError('')
-                                    }
-                                }}
-                                aria-label="Select player to save"
-                            >
-                                <option value="">Select player to save...</option>
-                                {players.slice(0, maxPlayers).map((p, i) => (
-                                    <option key={i} value={i}>
-                                        Player {i + 1} ({p.sex === 'men' ? 'M' : 'L'}, HI: {p.hi || 'not set'})
-                                    </option>
-                                ))}
-                            </select>
-                            <input
-                                type="text"
-                                value={newGolferName}
-                                onChange={e => setNewGolferName(e.target.value)}
-                                placeholder="Golfer name (e.g., John Smith)"
-                                aria-label="Golfer name"
-                            />
-                            <button
-                                onClick={() => {
-                                    const select = document.querySelector('.save-golfer-section select')
-                                    const idx = parseInt(select.value)
-                                    if (!isNaN(idx)) {
-                                        handleSaveGolfer(idx)
-                                        select.value = ''
-                                    } else {
-                                        setError('Please select a player to save')
-                                    }
-                                }}
-                                className="btn-secondary"
-                            >
-                                Save Golfer
-                            </button>
+                            {players.slice(0, maxPlayers).map((p, i) => (
+                                <div key={i} className="save-golfer-row">
+                                    <span className="player-info">
+                                        Player {i + 1}: {p.name || '(no name)'} - {p.sex === 'men' ? 'M' : 'L'}, HI: {p.hi || 'not set'}
+                                    </span>
+                                    <button
+                                        onClick={() => handleSaveGolfer(i)}
+                                        className="btn-small"
+                                        disabled={!p.name || !p.hi}
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            ))}
                         </div>
 
                         {savedGolfers.length > 0 && (
