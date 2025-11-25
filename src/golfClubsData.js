@@ -110,6 +110,213 @@ export const golfClubs = {
     },
 
     defaultTee: 'white'
+  },
+
+  // La Cala Resort - Asia Course
+  lacala_asia: {
+    id: 'lacala_asia',
+    name: 'La Cala Resort - Asia',
+    logo: 'club-logo-nobg.png',
+    favicon: '/favicon.ico',
+
+    tees: {
+      blancas: {
+        name: 'Blancas (White)',
+        color: '#FFFFFF',
+        men: {
+          '18': { slope: 137, cr: 71.3, par: 72 },
+          '9f': { slope: 137, cr: 35.7, par: 36 },
+          '9b': { slope: 137, cr: 35.6, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 137, cr: 71.3, par: 72 },
+          '9f': { slope: 137, cr: 35.7, par: 36 },
+          '9b': { slope: 137, cr: 35.6, par: 36 }
+        }
+      },
+      amarillas: {
+        name: 'Amarillas (Yellow)',
+        color: '#FFD700',
+        men: {
+          '18': { slope: 139, cr: 69.1, par: 72 },
+          '9f': { slope: 139, cr: 34.6, par: 36 },
+          '9b': { slope: 139, cr: 34.5, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 139, cr: 69.1, par: 72 },
+          '9f': { slope: 139, cr: 34.6, par: 36 },
+          '9b': { slope: 139, cr: 34.5, par: 36 }
+        }
+      },
+      azules: {
+        name: 'Azules (Blue)',
+        color: '#0000FF',
+        men: {
+          '18': { slope: 121, cr: 70.3, par: 72 },
+          '9f': { slope: 121, cr: 35.2, par: 36 },
+          '9b': { slope: 121, cr: 35.1, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 121, cr: 70.3, par: 72 },
+          '9f': { slope: 121, cr: 35.2, par: 36 },
+          '9b': { slope: 121, cr: 35.1, par: 36 }
+        }
+      },
+      rojas: {
+        name: 'Rojas (Red)',
+        color: '#DC143C',
+        men: {
+          '18': { slope: 118, cr: 68.8, par: 72 },
+          '9f': { slope: 118, cr: 34.4, par: 36 },
+          '9b': { slope: 118, cr: 34.4, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 118, cr: 68.8, par: 72 },
+          '9f': { slope: 118, cr: 34.4, par: 36 },
+          '9b': { slope: 118, cr: 34.4, par: 36 }
+        }
+      }
+    },
+
+    defaultTee: 'amarillas'
+  },
+
+  // La Cala Resort - America Course
+  lacala_america: {
+    id: 'lacala_america',
+    name: 'La Cala Resort - America',
+    logo: 'club-logo-nobg.png',
+    favicon: '/favicon.ico',
+
+    tees: {
+      blanco: {
+        name: 'Blanco (White)',
+        color: '#FFFFFF',
+        men: {
+          '18': { slope: 138, cr: 72.7, par: 72 },
+          '9f': { slope: 138, cr: 36.4, par: 36 },
+          '9b': { slope: 138, cr: 36.3, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 138, cr: 72.7, par: 72 },
+          '9f': { slope: 138, cr: 36.4, par: 36 },
+          '9b': { slope: 138, cr: 36.3, par: 36 }
+        }
+      },
+      amarillas: {
+        name: 'Amarillas (Yellow)',
+        color: '#FFD700',
+        men: {
+          '18': { slope: 134, cr: 70.6, par: 72 },
+          '9f': { slope: 134, cr: 35.3, par: 36 },
+          '9b': { slope: 134, cr: 35.3, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 134, cr: 70.6, par: 72 },
+          '9f': { slope: 134, cr: 35.3, par: 36 },
+          '9b': { slope: 134, cr: 35.3, par: 36 }
+        }
+      },
+      azul: {
+        name: 'Azul (Blue)',
+        color: '#0000FF',
+        men: {
+          '18': { slope: 127, cr: 72.1, par: 72 },
+          '9f': { slope: 127, cr: 36.1, par: 36 },
+          '9b': { slope: 127, cr: 36.0, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 127, cr: 72.1, par: 72 },
+          '9f': { slope: 127, cr: 36.1, par: 36 },
+          '9b': { slope: 127, cr: 36.0, par: 36 }
+        }
+      },
+      rojas: {
+        name: 'Rojas (Red)',
+        color: '#DC143C',
+        men: {
+          '18': { slope: 131, cr: 70.3, par: 72 },
+          '9f': { slope: 131, cr: 35.2, par: 36 },
+          '9b': { slope: 131, cr: 35.1, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 131, cr: 70.3, par: 72 },
+          '9f': { slope: 131, cr: 35.2, par: 36 },
+          '9b': { slope: 131, cr: 35.1, par: 36 }
+        }
+      }
+    },
+
+    defaultTee: 'amarillas'
+  },
+
+  // La Cala Resort - Europa Course
+  lacala_europa: {
+    id: 'lacala_europa',
+    name: 'La Cala Resort - Europa',
+    logo: 'club-logo-nobg.png',
+    favicon: '/favicon.ico',
+
+    tees: {
+      blancas: {
+        name: 'Blancas (White)',
+        color: '#FFFFFF',
+        men: {
+          '18': { slope: 138, cr: 72.1, par: 72 },
+          '9f': { slope: 138, cr: 36.1, par: 36 },
+          '9b': { slope: 138, cr: 36.0, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 138, cr: 72.1, par: 72 },
+          '9f': { slope: 138, cr: 36.1, par: 36 },
+          '9b': { slope: 138, cr: 36.0, par: 36 }
+        }
+      },
+      amarillas: {
+        name: 'Amarillas (Yellow)',
+        color: '#FFD700',
+        men: {
+          '18': { slope: 132, cr: 69.5, par: 72 },
+          '9f': { slope: 132, cr: 34.8, par: 36 },
+          '9b': { slope: 132, cr: 34.7, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 132, cr: 69.5, par: 72 },
+          '9f': { slope: 132, cr: 34.8, par: 36 },
+          '9b': { slope: 132, cr: 34.7, par: 36 }
+        }
+      },
+      azules: {
+        name: 'Azules (Blue)',
+        color: '#0000FF',
+        men: {
+          '18': { slope: 124, cr: 70.3, par: 72 },
+          '9f': { slope: 124, cr: 35.2, par: 36 },
+          '9b': { slope: 124, cr: 35.1, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 124, cr: 70.3, par: 72 },
+          '9f': { slope: 124, cr: 35.2, par: 36 },
+          '9b': { slope: 124, cr: 35.1, par: 36 }
+        }
+      },
+      rojas: {
+        name: 'Rojas (Red)',
+        color: '#DC143C',
+        men: {
+          '18': { slope: 123, cr: 68.4, par: 72 },
+          '9f': { slope: 123, cr: 34.2, par: 36 },
+          '9b': { slope: 123, cr: 34.2, par: 36 }
+        },
+        ladies: {
+          '18': { slope: 123, cr: 68.4, par: 72 },
+          '9f': { slope: 123, cr: 34.2, par: 36 },
+          '9b': { slope: 123, cr: 34.2, par: 36 }
+        }
+      }
+    },
+
+    defaultTee: 'amarillas'
   }
 }
 
