@@ -258,6 +258,19 @@ button:disabled {
     font-weight: 600;
 }
 
+/* Golfer quick load */
+.golfer-quick-load {
+    margin-top: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.golfer-quick-load select {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+    background-color: #f9f9f9;
+    border: 1px dashed #ccc;
+}
+
 /* Save/Load section */
 .save-load-section {
     margin-top: 3rem;
@@ -265,23 +278,30 @@ button:disabled {
     border-top: 2px solid #e0e0e0;
 }
 
-.save-config {
+.golfer-manager {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 6px;
+}
+
+.save-golfer-section {
     display: flex;
+    flex-direction: column;
     gap: 0.75rem;
-    align-items: flex-end;
     margin-top: 1rem;
 }
 
-.save-config input {
-    flex: 1;
+.save-golfer-section select,
+.save-golfer-section input {
     margin: 0;
 }
 
-.save-config button {
+.save-golfer-section button {
     margin: 0;
 }
 
-.saved-configs {
+.saved-golfers {
     margin-top: 1.5rem;
 }
 
@@ -290,7 +310,7 @@ button:disabled {
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem;
-    background: #f9f9f9;
+    background: #fff;
     border-radius: 6px;
     margin-bottom: 0.5rem;
     border: 1px solid #e0e0e0;
@@ -364,13 +384,8 @@ button:disabled {
         width: 100%;
     }
 
-    .save-config {
-        flex-direction: column;
-    }
-
-    .save-config input,
-    .save-config button {
-        width: 100%;
+    .save-golfer-section {
+        gap: 0.5rem;
     }
 
     .saved-config-item {
@@ -381,6 +396,10 @@ button:disabled {
     .config-name,
     .config-details {
         flex-basis: 100%;
+    }
+
+    .golfer-quick-load select {
+        font-size: 14px;
     }
 }
 
