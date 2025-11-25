@@ -17,7 +17,7 @@ const HANDICAP_ALLOWANCES = {
     best_3_from_3: 1.00
 }
 
-const MIN_HANDICAP = 0
+const MIN_HANDICAP = -10
 const MAX_HANDICAP = 54
 const STORAGE_KEY = 'golf_saved_configs'
 const CLUB_SELECTION_KEY = 'golf_selected_club'
