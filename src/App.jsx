@@ -17,9 +17,9 @@ const HANDICAP_ALLOWANCES = {
     best_3_from_3: 1.00
 }
 
-const MIN_HANDICAP = 0
+const MIN_HANDICAP = -10
 const MAX_HANDICAP = 54
-const STORAGE_KEY = 'golf_saved_configs'
+const GOLFERS_STORAGE_KEY = 'golf_saved_golfers'
 const CLUB_SELECTION_KEY = 'golf_selected_club'
 
 export default function App() {
@@ -47,18 +47,19 @@ export default function App() {
     ])
     const [result, setResult] = useState('')
     const [error, setError] = useState('')
-    const [savedConfigs, setSavedConfigs] = useState([])
-    const [configName, setConfigName] = useState('')
+    const [savedGolfers, setSavedGolfers] = useState([])
+    const [newGolferName, setNewGolferName] = useState('')
+    const [showGolferManager, setShowGolferManager] = useState(false)
 
-    // Load saved configurations on mount
+    // Load saved golfers on mount
     useEffect(() => {
         try {
-            const saved = localStorage.getItem(STORAGE_KEY)
+            const saved = localStorage.getItem(GOLFERS_STORAGE_KEY)
             if (saved) {
-                setSavedConfigs(JSON.parse(saved))
+                setSavedGolfers(JSON.parse(saved))
             }
         } catch (e) {
-            console.error('Failed to load saved configurations:', e)
+            console.error('Failed to load saved golfers:', e)
         }
     }, [])
 
@@ -272,38 +273,72 @@ export default function App() {
         }
     }
 
-    function handleSaveConfig() {
-        if (!configName.trim()) {
-            setError('Please enter a configuration name')
+    function handleSaveGolfer(playerIndex) {
+        const player = players[playerIndex]
+        if (!player.hi) {
+            setError('Please enter a handicap before saving')
+            return
+        }
+        if (!newGolferName.trim()) {
+            setError('Please enter a golfer name')
             return
         }
 
-        const config = {
-            name: configName,
-            format,
-            holes,
-            players: players.slice(0, maxPlayers),
+        const golfer = {
+            name: newGolferName.trim(),
+            sex: player.sex,
+            hi: player.hi,
+            tee: player.tee,
             timestamp: new Date().toISOString()
         }
 
-        const updated = [...savedConfigs, config]
-        setSavedConfigs(updated)
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-        setConfigName('')
+        const updated = [...savedGolfers, golfer]
+        setSavedGolfers(updated)
+        localStorage.setItem(GOLFERS_STORAGE_KEY, JSON.stringify(updated))
+        setNewGolferName('')
+        setError('')
+        setShowGolferManager(false)
+    }
+
+    function handleLoadGolfer(golfer, playerIndex) {
+        const copy = [...players]
+        copy[playerIndex] = {
+            sex: golfer.sex,
+            hi: golfer.hi,
+            tee: golfer.tee
+        }
+        setPlayers(copy)
         setError('')
     }
 
-    function handleLoadConfig(config) {
-        setFormat(config.format)
-        setHoles(config.holes)
-        setPlayers([...config.players, ...players.slice(config.players.length)])
-        setError('')
+    function handleDeleteGolfer(index) {
+        const updated = savedGolfers.filter((_, i) => i !== index)
+        setSavedGolfers(updated)
+        localStorage.setItem(GOLFERS_STORAGE_KEY, JSON.stringify(updated))
     }
 
-    function handleDeleteConfig(index) {
-        const updated = savedConfigs.filter((_, i) => i !== index)
-        setSavedConfigs(updated)
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+    function handleUpdateGolfer(index) {
+        const golfer = savedGolfers[index]
+        const playerIndex = players.findIndex(p => p.hi === golfer.hi && p.sex === golfer.sex)
+
+        if (playerIndex === -1) {
+            setError('This golfer is not currently in the player list')
+            return
+        }
+
+        const updatedGolfer = {
+            ...golfer,
+            sex: players[playerIndex].sex,
+            hi: players[playerIndex].hi,
+            tee: players[playerIndex].tee,
+            timestamp: new Date().toISOString()
+        }
+
+        const updated = [...savedGolfers]
+        updated[index] = updatedGolfer
+        setSavedGolfers(updated)
+        localStorage.setItem(GOLFERS_STORAGE_KEY, JSON.stringify(updated))
+        setError('')
     }
 
     function handlePrint() {
@@ -397,45 +432,65 @@ export default function App() {
             <div className="players-grid">
                 {players.map((p, i) => (
                     i < maxPlayers && (
-                        <div
-                            key={i}
-                            className={`player-row ${isTeamFormat ? (i < 2 ? 'team-a-border' : 'team-b-border') : ''}`}
-                            role="group"
-                            aria-label={`Player ${i + 1} details`}
-                        >
-                            <label htmlFor={`player-${i}-sex`}>Player {i + 1}:</label>
-                            <select
-                                id={`player-${i}-sex`}
-                                value={p.sex}
-                                onChange={e => handlePlayerChange(i, 'sex', e.target.value)}
-                                aria-label={`Player ${i + 1} sex`}
+                        <div key={i}>
+                            <div
+                                className={`player-row ${isTeamFormat ? (i < 2 ? 'team-a-border' : 'team-b-border') : ''}`}
+                                role="group"
+                                aria-label={`Player ${i + 1} details`}
                             >
-                                <option value="men">Men</option>
-                                <option value="ladies">Ladies</option>
-                            </select>
-                            <input
-                                id={`player-${i}-hi`}
-                                type="number"
-                                step="0.1"
-                                min={MIN_HANDICAP}
-                                max={MAX_HANDICAP}
-                                value={p.hi}
-                                placeholder="HI"
-                                onChange={e => handlePlayerChange(i, 'hi', e.target.value)}
-                                aria-label={`Player ${i + 1} handicap index`}
-                                aria-describedby="handicap-hint"
-                            />
-                            <select
-                                id={`player-${i}-tee`}
-                                value={p.tee}
-                                onChange={e => handlePlayerChange(i, 'tee', e.target.value)}
-                                style={{ borderLeft: `4px solid ${teeData[p.tee]?.color || '#000'}` }}
-                                aria-label={`Player ${i + 1} tee selection`}
-                            >
-                                {Object.entries(teeData).map(([teeKey, teeInfo]) => (
-                                    <option key={teeKey} value={teeKey}>{teeInfo.name}</option>
-                                ))}
-                            </select>
+                                <label htmlFor={`player-${i}-sex`}>Player {i + 1}:</label>
+                                <select
+                                    id={`player-${i}-sex`}
+                                    value={p.sex}
+                                    onChange={e => handlePlayerChange(i, 'sex', e.target.value)}
+                                    aria-label={`Player ${i + 1} sex`}
+                                >
+                                    <option value="men">Men</option>
+                                    <option value="ladies">Ladies</option>
+                                </select>
+                                <input
+                                    id={`player-${i}-hi`}
+                                    type="number"
+                                    step="0.1"
+                                    min={MIN_HANDICAP}
+                                    max={MAX_HANDICAP}
+                                    value={p.hi}
+                                    placeholder="HI"
+                                    onChange={e => handlePlayerChange(i, 'hi', e.target.value)}
+                                    aria-label={`Player ${i + 1} handicap index`}
+                                    aria-describedby="handicap-hint"
+                                />
+                                <select
+                                    id={`player-${i}-tee`}
+                                    value={p.tee}
+                                    onChange={e => handlePlayerChange(i, 'tee', e.target.value)}
+                                    style={{ borderLeft: `4px solid ${teeData[p.tee]?.color || '#000'}` }}
+                                    aria-label={`Player ${i + 1} tee selection`}
+                                >
+                                    {Object.entries(teeData).map(([teeKey, teeInfo]) => (
+                                        <option key={teeKey} value={teeKey}>{teeInfo.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            {savedGolfers.length > 0 && (
+                                <div className="golfer-quick-load">
+                                    <select
+                                        value=""
+                                        onChange={e => {
+                                            const golfer = savedGolfers.find(g => g.name === e.target.value)
+                                            if (golfer) handleLoadGolfer(golfer, i)
+                                        }}
+                                        aria-label={`Load saved golfer for Player ${i + 1}`}
+                                    >
+                                        <option value="">Load saved golfer...</option>
+                                        {savedGolfers.map((golfer, idx) => (
+                                            <option key={idx} value={golfer.name}>
+                                                {golfer.name} ({golfer.sex === 'men' ? 'M' : 'L'}, HI: {golfer.hi})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                         </div>
                     )
                 ))}
@@ -461,31 +516,74 @@ export default function App() {
             )}
 
             <div className="save-load-section">
-                <h3>Save/Load Configuration</h3>
-                <div className="save-config">
-                    <input
-                        type="text"
-                        value={configName}
-                        onChange={e => setConfigName(e.target.value)}
-                        placeholder="Configuration name"
-                        aria-label="Configuration name"
-                    />
-                    <button onClick={handleSaveConfig} className="btn-secondary">Save Current Setup</button>
-                </div>
+                <h3>Manage Golfers</h3>
+                <button
+                    onClick={() => setShowGolferManager(!showGolferManager)}
+                    className="btn-secondary"
+                    style={{ marginTop: '1rem', width: '100%' }}
+                >
+                    {showGolferManager ? 'Hide' : 'Show'} Golfer Manager
+                </button>
 
-                {savedConfigs.length > 0 && (
-                    <div className="saved-configs">
-                        <h4>Saved Configurations:</h4>
-                        {savedConfigs.map((config, i) => (
-                            <div key={i} className="saved-config-item">
-                                <span className="config-name">{config.name}</span>
-                                <span className="config-details">
-                                    {config.format} • {config.holes === '18' ? '18 holes' : config.holes === '9f' ? '9F' : '9B'}
-                                </span>
-                                <button onClick={() => handleLoadConfig(config)} className="btn-small">Load</button>
-                                <button onClick={() => handleDeleteConfig(i)} className="btn-small btn-danger">Delete</button>
+                {showGolferManager && (
+                    <div className="golfer-manager">
+                        <h4>Save Current Player as Golfer:</h4>
+                        <div className="save-golfer-section">
+                            <select
+                                onChange={e => {
+                                    // Store selected player index for saving
+                                    const idx = parseInt(e.target.value)
+                                    if (!isNaN(idx)) {
+                                        setError('')
+                                    }
+                                }}
+                                aria-label="Select player to save"
+                            >
+                                <option value="">Select player to save...</option>
+                                {players.slice(0, maxPlayers).map((p, i) => (
+                                    <option key={i} value={i}>
+                                        Player {i + 1} ({p.sex === 'men' ? 'M' : 'L'}, HI: {p.hi || 'not set'})
+                                    </option>
+                                ))}
+                            </select>
+                            <input
+                                type="text"
+                                value={newGolferName}
+                                onChange={e => setNewGolferName(e.target.value)}
+                                placeholder="Golfer name (e.g., John Smith)"
+                                aria-label="Golfer name"
+                            />
+                            <button
+                                onClick={() => {
+                                    const select = document.querySelector('.save-golfer-section select')
+                                    const idx = parseInt(select.value)
+                                    if (!isNaN(idx)) {
+                                        handleSaveGolfer(idx)
+                                        select.value = ''
+                                    } else {
+                                        setError('Please select a player to save')
+                                    }
+                                }}
+                                className="btn-secondary"
+                            >
+                                Save Golfer
+                            </button>
+                        </div>
+
+                        {savedGolfers.length > 0 && (
+                            <div className="saved-golfers">
+                                <h4>Saved Golfers:</h4>
+                                {savedGolfers.map((golfer, i) => (
+                                    <div key={i} className="saved-config-item">
+                                        <span className="config-name">{golfer.name}</span>
+                                        <span className="config-details">
+                                            {golfer.sex === 'men' ? 'Men' : 'Ladies'} • HI: {golfer.hi} • {teeData[golfer.tee]?.name || golfer.tee}
+                                        </span>
+                                        <button onClick={() => handleDeleteGolfer(i)} className="btn-small btn-danger">Delete</button>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        )}
                     </div>
                 )}
             </div>
